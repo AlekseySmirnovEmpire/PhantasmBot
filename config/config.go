@@ -17,13 +17,13 @@ var (
 type configStruct struct {
 	Token     string `json:"token"`
 	BotPrefix string `json:"botPrefix"`
-	Admin     string `json:"admin"`
+	AdminID   string `json:"admin"`
 }
 
 // IsAdmin Проверяет является ли пользователь админом по его Id
 func (c *configStruct) IsAdmin(ID *string) bool {
 	str := *ID
-	return str == c.Admin
+	return str == c.AdminID
 }
 
 func ReadConfig() error {
@@ -44,7 +44,7 @@ func ReadConfig() error {
 	}
 	Token = config.Token
 	BotPrefix = config.BotPrefix
-	Admin = config.Admin
+	Admin = config.AdminID
 	fmt.Println("Success reading config.json!")
 
 	return nil
