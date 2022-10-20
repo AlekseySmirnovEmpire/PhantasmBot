@@ -53,12 +53,19 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			m.Content = msg[0].Content
 			m.Attachments = msg[0].Attachments
 		}
-		switch m.Content {
+		msg := strings.Split(m.Content, " ")
+		switch msg[0] {
 		case "старт":
 			commands.StartCommand(s, m)
 			break
 		case "команды":
 			commands.ListCommand(s, m)
+			break
+		case "д":
+			commands.Dice(s, msg, &m.Author.ID, &m.ChannelID)
+			break
+		case "данет":
+			commands.FiftyFiftyRandom(s, m)
 			break
 		}
 	}
