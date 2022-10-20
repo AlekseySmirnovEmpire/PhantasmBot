@@ -12,7 +12,9 @@ func main() {
 		fmt.Println(err.Error())
 		return
 	}
-	bot.Start()
+	if err = bot.Start(); err != nil {
+		return
+	}
 
 	<-make(chan struct{})
 }
