@@ -3,6 +3,7 @@ package bot
 import (
 	"PhantasmBot/commands"
 	"PhantasmBot/config"
+	"PhantasmBot/db"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"strings"
@@ -10,11 +11,11 @@ import (
 
 var BotId string
 
-func Start() {
+func Start() error {
 	goBot, err := discordgo.New("Bot " + config.Token)
 	if err != nil {
 		fmt.Println(err.Error())
-		return
+		return err
 	}
 
 	u, err := goBot.User("@me")
@@ -25,15 +26,18 @@ func Start() {
 
 	goBot.AddHandler(messageHandler)
 
+	if err = db.InitDB(); err != nil {
+		return err
+	}
+
 	err = goBot.Open()
 	if err != nil {
 		fmt.Println(err.Error())
-		return
+		return err
 	}
 
 	fmt.Println("Bot is running!")
-	<-make(chan struct{})
-	return
+	return nil
 }
 
 func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
