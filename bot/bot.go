@@ -67,6 +67,8 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		case "данет":
 			commands.FiftyFiftyRandom(s, m)
 			break
+		default:
+			commands.NotFound(s, m)
 		}
 	}
 }
