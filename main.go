@@ -3,6 +3,7 @@ package main
 import (
 	"PhantasmBot/bot"
 	"PhantasmBot/config"
+	"PhantasmBot/db"
 	"fmt"
 )
 
@@ -15,6 +16,7 @@ func main() {
 	if err = bot.Start(); err != nil {
 		return
 	}
+	defer db.CloseDB()
 
 	<-make(chan struct{})
 }
