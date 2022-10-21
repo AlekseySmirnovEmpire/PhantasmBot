@@ -58,3 +58,13 @@ func ShowMoney(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 	_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
 }
+
+func Quite(s *discordgo.Session, m *discordgo.MessageCreate) {
+	var str string
+	if !player.IsInGame(&m.Author.ID) {
+		str = "чтобы выйти из персонажа, надо сначала за него зайти, мистер \"мозги\" ..."
+	} else {
+		str = player.QuiteChar(&m.Author.ID)
+	}
+	_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
+}
