@@ -28,3 +28,33 @@ func FindCharList(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
 }
+
+func ShowTitle(s *discordgo.Session, m *discordgo.MessageCreate) {
+	var str string
+	if !player.IsInGame(&m.Author.ID) {
+		str = "для начала зайдите за своего персонажа!"
+	} else {
+		str = player.ShowTitle(&m.Author.ID)
+	}
+	_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
+}
+
+func ShowAttributes(s *discordgo.Session, m *discordgo.MessageCreate) {
+	var str string
+	if !player.IsInGame(&m.Author.ID) {
+		str = "для начала зайдите за своего персонажа!"
+	} else {
+		str = player.ShowAttributes(&m.Author.ID)
+	}
+	_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
+}
+
+func ShowMoney(s *discordgo.Session, m *discordgo.MessageCreate) {
+	var str string
+	if !player.IsInGame(&m.Author.ID) {
+		str = "для начала зайдите за своего персонажа!"
+	} else {
+		str = player.ShowMoney(&m.Author.ID)
+	}
+	_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
+}

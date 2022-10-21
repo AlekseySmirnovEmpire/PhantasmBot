@@ -11,6 +11,11 @@ type Money struct {
 	Gold     int `db:"gold"`
 }
 
+func (m *Money) String() string {
+	str := fmt.Sprintf("Золото: %d", m.Gold)
+	return PrintList(&str)
+}
+
 func InitMoney(playerID int) *Money {
 	sql := fmt.Sprintf(
 		`SELECT m.m_id, m.p_id, m.gold

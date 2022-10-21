@@ -3,6 +3,7 @@ package character
 import (
 	"PhantasmBot/db"
 	"fmt"
+	"strconv"
 )
 
 type Attributes struct {
@@ -24,6 +25,36 @@ type Attributes struct {
 	Insight      int `db:"insight"`
 	Animals      int `db:"animals"`
 	Perceptions  int `db:"perceptions"`
+}
+
+func (a *Attributes) String() string {
+	str := fmt.Sprintf(
+		"Атлетика:%d(%s)\nРукопашный бой:%d(%s)\nФехтование:%d(%s)\nАкробатика:%d(%s)\nЛовкость рук:%d(%s)\nВзлом:%d(%s)\nСкрытность:%d(%s)\nСтойкость:%d(%s)\nАнализ:%d(%s)\nИстория:%d(%s)\nРелигия:%d(%s)\nВнимательность:%d(%s)\nМедицина:%d(%s)\nПроницательность:%d(%s)\nУход за животными:%d(%s)\nПроницательность:%d(%s)",
+		a.Athletic, printAttr(a.Athletic),
+		a.MeleeFight, printAttr(a.MeleeFight),
+		a.SwordFight, printAttr(a.SwordFight),
+		a.Acrobatic, printAttr(a.Acrobatic),
+		a.HandAgil, printAttr(a.HandAgil),
+		a.Hack, printAttr(a.Hack),
+		a.Sneaky, printAttr(a.Sneaky),
+		a.Constitution, printAttr(a.Constitution),
+		a.Analitic, printAttr(a.Analitic),
+		a.History, printAttr(a.History),
+		a.Religion, printAttr(a.Religion),
+		a.Attention, printAttr(a.Attention),
+		a.Medicine, printAttr(a.Medicine),
+		a.Insight, printAttr(a.Insight),
+		a.Animals, printAttr(a.Animals),
+		a.Perceptions, printAttr(a.Perceptions))
+	return PrintList(&str)
+}
+
+func printAttr(val int) string {
+	v := val / 5
+	if v > 0 {
+		return fmt.Sprintf("+%d", v)
+	}
+	return strconv.Itoa(v)
 }
 
 func InitAttr(playerID int) *Attributes {

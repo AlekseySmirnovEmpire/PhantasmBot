@@ -13,6 +13,12 @@ type Skills struct {
 	Rarity      string `db:"rarity"`
 }
 
+func (s *Skills) String() string {
+	return fmt.Sprintf(
+		"~~~~~~~~~~~~~~~~~~~~~~~~~~~~\nТип: %s\nНазвание: %s\nОписание: %s\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n",
+		s.Rarity, s.SkillName, s.Description)
+}
+
 func InitSkills(playerID int) *[]Skills {
 	sql := fmt.Sprintf(
 		`SELECT s.s_id, stp.p_id, s.skill_name, s.description, s.rarity

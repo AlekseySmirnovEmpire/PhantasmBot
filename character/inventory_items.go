@@ -11,10 +11,10 @@ type InventoryItems struct {
 	PlayerID       int            `db:"p_id"`
 	IsEquiped      bool           `db:"is_equiped"`
 	ItemName       string         `db:"item_name"`
-	Decription     string         `db:"decription"`
+	Description    string         `db:"decription"`
 	ArmourPiercing int            `db:"armour_piercing"`
-	PhisArmour     int            `db:"phis_Armour"`
-	MagicArmour    int            `db:"magic_Armour"`
+	PhisArmour     int            `db:"phis_armour"`
+	MagicArmour    int            `db:"magic_armour"`
 	Rarity         string         `db:"rarity"`
 	Damage         sql.NullString `db:"damage"`
 	Upgrades       sql.NullString `db:"upgrades"`
@@ -27,6 +27,65 @@ type InventoryItems struct {
 	SpecialOne     bool           `db:"special_one"`
 	SpecialTwo     bool           `db:"special_two"`
 	SpecialThree   bool           `db:"special_three"`
+}
+
+func (ii *InventoryItems) String() string {
+	str := fmt.Sprint("\n______________________________\n")
+	str += fmt.Sprintf("Редкость: %s\n", ii.Rarity)
+	str += fmt.Sprintf("Название: %s\n", ii.ItemName)
+	str += fmt.Sprint("Экипировано: ")
+	if ii.IsEquiped {
+		str += "Да\n"
+	} else {
+		str += "Нет\n"
+	}
+	if ii.Damage.Valid {
+		str += fmt.Sprintf("Урон: %s\n", ii.Damage.String)
+	}
+	if ii.Upgrades.Valid {
+		str += fmt.Sprintf("Сокеты: %s\n", ii.Upgrades.String)
+	}
+	if ii.PhisArmour != 0 {
+		str += fmt.Sprintf("Физ. армор: %d\n", ii.PhisArmour)
+	}
+	if ii.MagicArmour != 0 {
+		str += fmt.Sprintf("Маг. армор: %d\n", ii.MagicArmour)
+	}
+	str += fmt.Sprintf("Количество: %d\n", ii.Amount)
+	var pl string
+	switch {
+	case ii.Head:
+		pl = "Голова"
+		break
+	case ii.Body:
+		pl = "Тело"
+		break
+	case ii.LeftHand:
+		pl = "Левая рука"
+		break
+	case ii.RightHand:
+		pl = "Правая рука"
+		break
+	case ii.Neck:
+		pl = "Шея"
+		break
+	case ii.SpecialOne:
+		pl = "Спец. слот"
+		break
+	case ii.SpecialTwo:
+		pl = "Спец. слот"
+		break
+	case ii.SpecialThree:
+		pl = "Спец. слот"
+		break
+	default:
+		pl = "НИКУДА"
+		break
+	}
+	str += fmt.Sprintf("Одевается: %s\n", pl)
+	str += fmt.Sprintf("Описание: %s\n", ii.Description)
+	str += fmt.Sprint("______________________________\n")
+	return str
 }
 
 func InitInvItems(playerID int) *[]InventoryItems {

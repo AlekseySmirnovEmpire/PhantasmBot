@@ -3,6 +3,7 @@ package character
 import (
 	"PhantasmBot/db"
 	"fmt"
+	"strconv"
 )
 
 type Characteristics struct {
@@ -18,6 +19,25 @@ type Characteristics struct {
 	MagicArmour  int `db:"magic_armour"`
 	HealthMax    int `db:"health_max"`
 	ManaMax      int `db:"mana_max"`
+}
+
+func (c *Characteristics) String() string {
+	str := fmt.Sprintf("Сила:%d(%s)\nЛовкость:%d(%s)\nТелосложение:%d(%s)\nИнтеллект:%d(%s)\nМудрость:%d(%s)\nХаризма:%d(%s)",
+		c.Strength, printChar(c.Strength),
+		c.Dexterity, printChar(c.Dexterity),
+		c.Constitution, printChar(c.Constitution),
+		c.Intelligance, printChar(c.Intelligance),
+		c.Wisdom, printChar(c.Wisdom),
+		c.Charisma, printChar(c.Charisma))
+	return PrintList(&str)
+}
+
+func printChar(val int) string {
+	v := (val - 10) / 2
+	if v > 0 {
+		return fmt.Sprintf("+%d", v)
+	}
+	return strconv.Itoa(v)
 }
 
 func InitCharacteristics(playerID int) *Characteristics {

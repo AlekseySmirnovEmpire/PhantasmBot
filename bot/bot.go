@@ -74,6 +74,21 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		case "чарлист":
 			commands.FindCharList(s, m)
 			break
+		case "инвентарь":
+			commands.ShowInventory(s, m)
+			break
+		case "скилы":
+			commands.ShowSkills(s, m)
+			break
+		case "титул":
+			commands.ShowTitle(s, m)
+			break
+		case "навыки":
+			commands.ShowAttributes(s, m)
+			break
+		case "золото":
+			commands.ShowMoney(s, m)
+			break
 		default:
 			commands.NotFound(s, m)
 		}
