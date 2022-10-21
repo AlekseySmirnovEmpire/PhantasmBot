@@ -173,3 +173,20 @@ func PrintCharList(ID *string) (string, error) {
 	}
 	return str, nil
 }
+
+func QuiteChar(ID *string) string {
+	var us *User
+	var c int
+	for i, u := range users {
+		if u.UserKey == *ID {
+			us = &u
+			c = i
+		}
+	}
+	if us == nil {
+		return "а тебя и нет в списках!"
+	}
+	name := us.Player.Name
+	users = append(users[:c], users[c+1:]...)
+	return fmt.Sprintf("%s покинул игру!", name)
+}

@@ -89,8 +89,15 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		case "золото":
 			commands.ShowMoney(s, m)
 			break
+		case "выйти":
+			commands.Quite(s, m)
+			break
 		default:
-			commands.NotFound(s, m)
+			if commands.IsMandiWord(&msg[0]) {
+				commands.GetRandomShitAnswer(s, m)
+			} else {
+				commands.NotFound(s, m)
+			}
 		}
 	}
 }
