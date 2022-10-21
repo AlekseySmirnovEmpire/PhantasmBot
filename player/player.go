@@ -13,8 +13,84 @@ type User struct {
 	Player   *character.Character
 }
 
+func (u User) String() string {
+	return fmt.Sprintf(
+		"---------------------------------\nВаш ID: %s\n---------------------------------\n%s",
+		u.UserKey,
+		u.Player)
+}
+
 func Any() bool {
 	return len(users) > 0
+}
+
+func GetPlayer(ID *string) (*character.Character, error) {
+	for _, p := range users {
+		if p.UserKey == *ID {
+			return p.Player, nil
+		}
+	}
+	return nil, character.NoPlayerErr{}
+}
+
+func ShowTitle(ID *string) string {
+	player, err := GetPlayer(ID)
+	if err != nil {
+		return err.Error()
+	}
+	return player.String()
+}
+
+func ShowAttributes(ID *string) string {
+	player, err := GetPlayer(ID)
+	if err != nil {
+		return err.Error()
+	}
+	if player.Attributes == nil {
+		return "ой-ой что-то не так! (атрибуты не загрузились)"
+	}
+	return player.Attributes.String()
+}
+
+func ShowMoney(ID *string) string {
+	player, err := GetPlayer(ID)
+	if err != nil {
+		return err.Error()
+	}
+	if player.Money == nil {
+		return "ой-ой что-то не так! (деньги не подгрузились)"
+	}
+	return player.Money.String()
+}
+
+func ShowSkills(ID *string) string {
+	player, err := GetPlayer(ID)
+	if err != nil {
+		return err.Error()
+	}
+	if player.Skills == nil || len(*player.Skills) == 0 {
+		return "список ваших способностей пуст!"
+	}
+	str := ""
+
+	f := func(skills *[]character.Skills) <-chan string {
+		ch := make(chan string, len(*skills))
+
+		go func() {
+			defer close(ch)
+			for _, v := range *skills {
+				ch <- v.String()
+			}
+		}()
+
+		return ch
+	}
+
+	for s := range f(player.Skills) {
+		str += s
+	}
+
+	return str
 }
 
 func IsInGame(ID *string) bool {
@@ -24,6 +100,36 @@ func IsInGame(ID *string) bool {
 		}
 	}
 	return false
+}
+
+func ShowInventory(ID *string) string {
+	player, err := GetPlayer(ID)
+	if err != nil {
+		return err.Error()
+	}
+	if player.InventoryItems == nil || len(*player.InventoryItems) == 0 {
+		return "ваш инвентарь пуст!"
+	}
+	str := ""
+
+	for s := range getItem(player.InventoryItems) {
+		str += s
+	}
+
+	return str
+}
+
+func getItem(ii *[]character.InventoryItems) <-chan string {
+	ch := make(chan string, len(*ii))
+
+	go func() {
+		for _, i := range *ii {
+			ch <- i.String()
+		}
+		close(ch)
+	}()
+
+	return ch
 }
 
 var (
@@ -54,5 +160,16 @@ func FindCharacter(ID *string, name *string) error {
 
 func PrintCharList(ID *string) (string, error) {
 	var str string
+	var us *User
+	for _, u := range users {
+		if u.UserKey == *ID {
+			us = &u
+		}
+	}
+	if us == nil {
+		str = "что-то пошло не так при печати персонажа! (его нет в игре)"
+	} else {
+		str = fmt.Sprintf("ВЫ ВОШЛИ В ИГРУ!\n%s", *us)
+	}
 	return str, nil
 }

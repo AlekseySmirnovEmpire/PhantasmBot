@@ -6,17 +6,17 @@ import (
 	"sync"
 )
 
-type noPlayerErr struct {
+type NoPlayerErr struct {
 	err error
 	val string
 }
 
-func (n noPlayerErr) Error() string {
-	return n.val
+func (n NoPlayerErr) Error() string {
+	return "нет такого персонажа!"
 }
 
-func (n noPlayerErr) Unwrap() error {
-	return n.err
+func (n NoPlayerErr) Unwrap() error {
+	return n
 }
 
 type Character struct {
@@ -39,6 +39,14 @@ type Character struct {
 	Skills                 *[]Skills
 }
 
+func (c *Character) String() string {
+	pr := c.Level / 40
+	return fmt.Sprintf(
+		"Имя:%s\nПрозвище:%s\nКласс:%s\nРаса:%s\nРост:%d\nПол:%s\nПрестиж:%d\nУровень:%d\nХП:%d\nМП:%d\n%s\n",
+		c.Name, c.LastName, c.Klass, c.Race, c.Height, c.Sex, pr, c.Level-pr*40, c.CurrentHealth, c.CurrentMana,
+		c.Characteristics)
+}
+
 func Init(name *string, userID int) (*Character, error) {
 	sql := fmt.Sprintf(
 		`SELECT p.p_id, p.p_name, p.last_name, p.klass, p.race, p.height, 
@@ -52,7 +60,7 @@ func Init(name *string, userID int) (*Character, error) {
 		return nil, err
 	}
 	if len(players) == 0 {
-		return nil, noPlayerErr{val: "нет такого персонажа!", err: err}
+		return nil, NoPlayerErr{}
 	}
 	c := players[0]
 
