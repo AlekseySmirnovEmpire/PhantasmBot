@@ -92,6 +92,12 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		case "выйти":
 			commands.Quite(s, m)
 			break
+		case "кикнуть":
+			commands.KickPlayer(s, m)
+			break
+		case "игроки":
+			commands.ShowPlayers(s, m)
+			break
 		default:
 			if commands.IsMandiWord(&msg[0]) {
 				commands.GetRandomShitAnswer(s, m)

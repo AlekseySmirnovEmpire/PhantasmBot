@@ -190,3 +190,19 @@ func QuiteChar(ID *string) string {
 	users = append(users[:c], users[c+1:]...)
 	return fmt.Sprintf("%s покинул игру!", name)
 }
+
+func ShowPlayers() string {
+	if len(users) == 0 {
+		return "никого в игре нет!"
+	}
+	var str string
+	for i, u := range users {
+		if u.Player == nil {
+			str += fmt.Sprintf("%d. *неопознан* UID: %s; PID: %d;\n", i+1, u.UserKey, u.PlayerID)
+		} else {
+			str += fmt.Sprintf("%d. Персонаж: %s; UID:%s\n", i+1, u.Player.Name, u.UserKey)
+		}
+	}
+
+	return str
+}
