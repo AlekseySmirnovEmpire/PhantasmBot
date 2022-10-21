@@ -1,9 +1,10 @@
 package db
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/jmoiron/sqlx"
+	_ "github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"io/ioutil"
 )
@@ -20,8 +21,12 @@ const dbName string = "postgres"
 
 var (
 	con *dbConnect
-	db  *sql.DB
+	db  *sqlx.DB
 )
+
+func CloseDB() {
+	db.Close()
+}
 
 func InitDB() error {
 	if con != nil {
@@ -47,7 +52,7 @@ func InitDB() error {
 		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		con.Host, con.Port, con.User, con.Password, con.DbName)
 
-	db, err = sql.Open(dbName, conStr)
+	db, err = sqlx.Open(dbName, conStr)
 	if err != nil {
 		fmt.Println(err.Error())
 		return err
@@ -60,4 +65,31 @@ func InitDB() error {
 
 	fmt.Println("Connecting DB SUCCESS!")
 	return nil
+}
+
+func Select[T comparable](sql *string) ([]T, error) {
+	objects := make([]T, 0)
+	rows, err := db.Queryx(*sql)
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var o T
+		err = rows.StructScan(&o)
+		if err != nil {
+			fmt.Println(err.Error())
+			continue
+		}
+		objects = append(objects, o)
+	}
+
+	return objects, nil
+}
+
+func getZero[T any]() T {
+	var result T
+	return result
 }
