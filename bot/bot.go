@@ -104,6 +104,15 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		case "refresh":
 			commands.RefreshUsers(s, m)
 			break
+		case "урон":
+			commands.DealDamage(s, m)
+			break
+		case "убить":
+			commands.KillPlayer(s, m)
+			break
+		case "хил":
+			commands.HealPlayer(s, m)
+			break
 		default:
 			if commands.IsMandiWord(&msg[0]) {
 				commands.GetRandomShitAnswer(s, m)

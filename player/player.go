@@ -69,6 +69,57 @@ func GetPlayer(ID *string) (*character.Character, error) {
 	return nil, character.NoPlayerErr{}
 }
 
+func HealPlayer(heal int, playerName *string) string {
+	var user *character.Character
+	for _, u := range users {
+		if u.Player.Name == *playerName {
+			user = u.Player
+		}
+	}
+	if user == nil {
+		return "персонаж не в игре!"
+	}
+	user.CurrentHealth += heal
+	if user.Characteristics == nil {
+		return "характеристики не прогрузились!"
+	}
+	if user.CurrentHealth > user.Characteristics.HealthMax {
+		user.CurrentHealth = user.Characteristics.HealthMax
+	}
+	ch := user.CurrentHealth
+	query := fmt.Sprintf(`UPDATE player SET current_health = %d WHERE p_name = '%s'`, ch, user.Name)
+	err := db.Update(&query)
+	if err != nil {
+		return "что-то пошло не так, урон не нанесён!"
+	}
+	return fmt.Sprintf("%s получил %d хила, текущие ХП = %d.", user.Name, heal, user.CurrentHealth)
+}
+
+func DealDamage(dmg int, playerName *string, isFull bool) string {
+	var user *character.Character
+	for _, u := range users {
+		if u.Player.Name == *playerName {
+			user = u.Player
+		}
+	}
+	if user == nil {
+		return "персонаж не в игре!"
+	}
+	user.CurrentHealth -= dmg
+	ch := user.CurrentHealth
+	query := fmt.Sprintf(`UPDATE player SET current_health = %d WHERE p_name = '%s'`, ch, user.Name)
+	err := db.Update(&query)
+	if err != nil {
+		return "что-то пошло не так, урон не нанесён!"
+	}
+	if ch <= -user.Characteristics.HealthMax*2 || isFull {
+		ch = -user.Characteristics.HealthMax * 2
+		return fmt.Sprintf("%s умер! Он выведен из игры, его хп = %d.", user.Name, ch)
+	} else {
+		return fmt.Sprintf("%s получил %d урона, текущие ХП = %d.", user.Name, dmg, user.CurrentHealth)
+	}
+}
+
 func ShowTitle(ID *string) string {
 	player, err := GetPlayer(ID)
 	if err != nil {

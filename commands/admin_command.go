@@ -56,6 +56,62 @@ func ShowPlayers(s *discordgo.Session, m *discordgo.MessageCreate) {
 	_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
 }
 
+func HealPlayer(s *discordgo.Session, m *discordgo.MessageCreate) {
+	str, err := checkForAdmin(&m.Author.ID)
+	if err != nil {
+		_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
+		return
+	}
+	msg := strings.Split(m.Content, " ")
+	if len(msg) != 3 {
+		str = "неправильная команда!"
+		_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
+
+	}
+}
+
+func KillPlayer(s *discordgo.Session, m *discordgo.MessageCreate) {
+	str, err := checkForAdmin(&m.Author.ID)
+	if err != nil {
+		_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
+		return
+	}
+	msg := strings.Split(m.Content, " ")
+	if len(msg) != 3 {
+		str = "неправильная команда!"
+		_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
+
+	}
+	heal, err := strconv.Atoi(msg[1])
+	if err != nil {
+		str = "надо указать число!"
+		_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
+	}
+	str = player.HealPlayer(heal, &msg[2])
+	_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
+}
+
+func DealDamage(s *discordgo.Session, m *discordgo.MessageCreate) {
+	str, err := checkForAdmin(&m.Author.ID)
+	if err != nil {
+		_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
+		return
+	}
+	msg := strings.Split(m.Content, " ")
+	if len(msg) != 3 {
+		str = "неправильная команда!"
+		_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
+
+	}
+	dmg, err := strconv.Atoi(msg[1])
+	if err != nil {
+		str = "надо указать число!"
+		_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
+	}
+	str = player.DealDamage(dmg, &msg[2], false)
+	_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
+}
+
 func RefreshUsers(s *discordgo.Session, m *discordgo.MessageCreate) {
 	str, err := checkForAdmin(&m.Author.ID)
 	if err == nil {

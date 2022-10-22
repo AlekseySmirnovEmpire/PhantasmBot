@@ -67,6 +67,14 @@ func InitDB() error {
 	return nil
 }
 
+func Update(query *string) error {
+	_, err := db.Exec(*query)
+	if err == nil {
+		return err
+	}
+	return nil
+}
+
 func Select[T comparable](sql *string) ([]T, error) {
 	objects := make([]T, 0)
 	rows, err := db.Queryx(*sql)
