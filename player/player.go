@@ -18,10 +18,17 @@ type User struct {
 }
 
 func (u User) String() string {
+	var str string
+	if u.Player.Note == nil {
+		str = "Заметок нет."
+	} else {
+		str = u.Player.Note.String()
+	}
 	return fmt.Sprintf(
-		"---------------------------------\nВаш ID: %s\n---------------------------------\n%s",
+		"---------------------------------\nВаш ID: %s\n---------------------------------\n%s\n%s",
 		u.UserKey,
-		u.Player)
+		u.Player,
+		str)
 }
 
 func Refresh() string {
@@ -88,7 +95,7 @@ func HealPlayer(heal int, playerName *string) string {
 	}
 	ch := user.CurrentHealth
 	query := fmt.Sprintf(`UPDATE player SET current_health = %d WHERE p_name = '%s'`, ch, user.Name)
-	err := db.Update(&query)
+	err := db.InsertOrUpdate(&query)
 	if err != nil {
 		return "что-то пошло не так, урон не нанесён!"
 	}
@@ -108,7 +115,7 @@ func DealDamage(dmg int, playerName *string, isFull bool) string {
 	user.CurrentHealth -= dmg
 	ch := user.CurrentHealth
 	query := fmt.Sprintf(`UPDATE player SET current_health = %d WHERE p_name = '%s'`, ch, user.Name)
-	err := db.Update(&query)
+	err := db.InsertOrUpdate(&query)
 	if err != nil {
 		return "что-то пошло не так, урон не нанесён!"
 	}
@@ -288,4 +295,17 @@ func ShowPlayers() string {
 	}
 
 	return str
+}
+
+func MakeNote(playerID, text *string) string {
+	player, err := GetPlayer(playerID)
+	if err != nil {
+		return "вы не в игре!"
+	}
+	query := fmt.Sprintf(`INSERT INTO notes (p_id, note) VALUES (%d, '%s')`, player.ID, *text)
+	err = db.InsertOrUpdate(&query)
+	if err != nil {
+		return "заметка не добавлена!"
+	}
+	return "заметка успешно добавлена!"
 }
