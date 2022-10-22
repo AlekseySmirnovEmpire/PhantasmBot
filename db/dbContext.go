@@ -67,7 +67,7 @@ func InitDB() error {
 	return nil
 }
 
-func Update(query *string) error {
+func InsertOrUpdate(query *string) error {
 	_, err := db.Exec(*query)
 	if err == nil {
 		return err

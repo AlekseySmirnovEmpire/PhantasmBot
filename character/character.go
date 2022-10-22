@@ -37,6 +37,7 @@ type Character struct {
 	InventoryItems         *[]InventoryItems
 	Money                  *Money
 	Skills                 *[]Skills
+	Note                   *Note
 }
 
 func (c *Character) String() string {
@@ -65,7 +66,7 @@ func Init(name *string, userID int) (*Character, error) {
 	c := players[0]
 
 	wg := new(sync.WaitGroup)
-	wg.Add(6)
+	wg.Add(7)
 
 	go func() {
 		c.Characteristics = asyncCreate[Characteristics](InitCharacteristics, c.ID, wg)
@@ -74,6 +75,7 @@ func Init(name *string, userID int) (*Character, error) {
 		c.InventoryItems = asyncCreateArr[InventoryItems](InitInvItems, c.ID, wg)
 		c.Money = asyncCreate[Money](InitMoney, c.ID, wg)
 		c.Skills = asyncCreateArr[Skills](InitSkills, c.ID, wg)
+		c.Note = asyncCreate[Note](InitNotes, c.ID, wg)
 	}()
 
 	wg.Wait()

@@ -68,3 +68,19 @@ func Quite(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 	_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
 }
+
+func MakeNote(s *discordgo.Session, m *discordgo.MessageCreate) {
+	var str string
+	if !player.IsInGame(&m.Author.ID) {
+		str = "чтобы оставить заметку - зайдите за персонажа!"
+	} else {
+		msg := strings.Split(m.Content, " ")
+		if len(msg) < 2 {
+			str = "неправильно ввёл команду!"
+		} else {
+			nT := strings.Join(msg[1:], " ")
+			str = player.MakeNote(&m.Author.ID, &nT)
+		}
+	}
+	_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
+}
