@@ -101,6 +101,9 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		case "clear":
 			commands.ClearChat(s, m, &BotId)
 			break
+		case "refresh":
+			commands.RefreshUsers(s, m)
+			break
 		default:
 			if commands.IsMandiWord(&msg[0]) {
 				commands.GetRandomShitAnswer(s, m)

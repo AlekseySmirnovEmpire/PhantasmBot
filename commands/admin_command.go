@@ -56,6 +56,14 @@ func ShowPlayers(s *discordgo.Session, m *discordgo.MessageCreate) {
 	_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
 }
 
+func RefreshUsers(s *discordgo.Session, m *discordgo.MessageCreate) {
+	str, err := checkForAdmin(&m.Author.ID)
+	if err == nil {
+		str = player.Refresh()
+	}
+	_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
+}
+
 func ClearChat(s *discordgo.Session, m *discordgo.MessageCreate, botID *string) {
 	str, err := checkForAdmin(&m.Author.ID)
 	if err != nil {

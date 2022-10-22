@@ -6,6 +6,10 @@ import (
 	"fmt"
 )
 
+var (
+	users []User
+)
+
 type User struct {
 	UserKey  string `db:"user_key"`
 	UserID   int    `db:"u_id"`
@@ -18,6 +22,38 @@ func (u User) String() string {
 		"---------------------------------\nВаш ID: %s\n---------------------------------\n%s",
 		u.UserKey,
 		u.Player)
+}
+
+func Refresh() string {
+	var str string
+	findUser := func() <-chan error {
+		ch := make(chan error, len(users))
+
+		go func() {
+			defer close(ch)
+			for _, u := range users {
+				if u.Player == nil {
+					str += fmt.Sprintf("%s - игрок не подгружен, не обновился!\n")
+					continue
+				}
+				ch <- FindCharacter(&u.UserKey, &u.Player.Name)
+			}
+		}()
+
+		return ch
+	}
+
+	for val := range findUser() {
+		if val != nil {
+			str += val.Error()
+		}
+	}
+
+	if str == "" {
+		str += "данные успещно загружены!"
+	}
+
+	return str
 }
 
 func Any() bool {
@@ -131,10 +167,6 @@ func getItem(ii *[]character.InventoryItems) <-chan string {
 
 	return ch
 }
-
-var (
-	users []User
-)
 
 func FindCharacter(ID *string, name *string) error {
 	sql := fmt.Sprintf(
