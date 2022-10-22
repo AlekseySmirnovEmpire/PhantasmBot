@@ -6,6 +6,10 @@ import (
 	"fmt"
 )
 
+var (
+	users []User
+)
+
 type User struct {
 	UserKey  string `db:"user_key"`
 	UserID   int    `db:"u_id"`
@@ -20,6 +24,38 @@ func (u User) String() string {
 		u.Player)
 }
 
+func Refresh() string {
+	var str string
+	findUser := func() <-chan error {
+		ch := make(chan error, len(users))
+
+		go func() {
+			defer close(ch)
+			for _, u := range users {
+				if u.Player == nil {
+					str += fmt.Sprintf("%s - игрок не подгружен, не обновился!\n")
+					continue
+				}
+				ch <- FindCharacter(&u.UserKey, &u.Player.Name)
+			}
+		}()
+
+		return ch
+	}
+
+	for val := range findUser() {
+		if val != nil {
+			str += val.Error()
+		}
+	}
+
+	if str == "" {
+		str += "данные успещно загружены!"
+	}
+
+	return str
+}
+
 func Any() bool {
 	return len(users) > 0
 }
@@ -31,6 +67,57 @@ func GetPlayer(ID *string) (*character.Character, error) {
 		}
 	}
 	return nil, character.NoPlayerErr{}
+}
+
+func HealPlayer(heal int, playerName *string) string {
+	var user *character.Character
+	for _, u := range users {
+		if u.Player.Name == *playerName {
+			user = u.Player
+		}
+	}
+	if user == nil {
+		return "персонаж не в игре!"
+	}
+	user.CurrentHealth += heal
+	if user.Characteristics == nil {
+		return "характеристики не прогрузились!"
+	}
+	if user.CurrentHealth > user.Characteristics.HealthMax {
+		user.CurrentHealth = user.Characteristics.HealthMax
+	}
+	ch := user.CurrentHealth
+	query := fmt.Sprintf(`UPDATE player SET current_health = %d WHERE p_name = '%s'`, ch, user.Name)
+	err := db.Update(&query)
+	if err != nil {
+		return "что-то пошло не так, урон не нанесён!"
+	}
+	return fmt.Sprintf("%s получил %d хила, текущие ХП = %d.", user.Name, heal, user.CurrentHealth)
+}
+
+func DealDamage(dmg int, playerName *string, isFull bool) string {
+	var user *character.Character
+	for _, u := range users {
+		if u.Player.Name == *playerName {
+			user = u.Player
+		}
+	}
+	if user == nil {
+		return "персонаж не в игре!"
+	}
+	user.CurrentHealth -= dmg
+	ch := user.CurrentHealth
+	query := fmt.Sprintf(`UPDATE player SET current_health = %d WHERE p_name = '%s'`, ch, user.Name)
+	err := db.Update(&query)
+	if err != nil {
+		return "что-то пошло не так, урон не нанесён!"
+	}
+	if ch <= -user.Characteristics.HealthMax*2 || isFull {
+		ch = -user.Characteristics.HealthMax * 2
+		return fmt.Sprintf("%s умер! Он выведен из игры, его хп = %d.", user.Name, ch)
+	} else {
+		return fmt.Sprintf("%s получил %d урона, текущие ХП = %d.", user.Name, dmg, user.CurrentHealth)
+	}
 }
 
 func ShowTitle(ID *string) string {
@@ -132,10 +219,6 @@ func getItem(ii *[]character.InventoryItems) <-chan string {
 	return ch
 }
 
-var (
-	users []User
-)
-
 func FindCharacter(ID *string, name *string) error {
 	sql := fmt.Sprintf(
 		`SELECT u.u_id, u.user_key,u.p_id 
@@ -189,4 +272,20 @@ func QuiteChar(ID *string) string {
 	name := us.Player.Name
 	users = append(users[:c], users[c+1:]...)
 	return fmt.Sprintf("%s покинул игру!", name)
+}
+
+func ShowPlayers() string {
+	if len(users) == 0 {
+		return "никого в игре нет!"
+	}
+	var str string
+	for i, u := range users {
+		if u.Player == nil {
+			str += fmt.Sprintf("%d. *неопознан* UID: %s; PID: %d;\n", i+1, u.UserKey, u.PlayerID)
+		} else {
+			str += fmt.Sprintf("%d. Персонаж: %s; UID:%s\n", i+1, u.Player.Name, u.UserKey)
+		}
+	}
+
+	return str
 }
