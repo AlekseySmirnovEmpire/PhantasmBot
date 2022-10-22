@@ -83,6 +83,7 @@ func ClearChat(s *discordgo.Session, m *discordgo.MessageCreate, botID *string) 
 	}
 
 	var messages []*discordgo.Message
+	t := time.Now()
 	if !checkTargetFlag(&flags, "-a") && count < 100 {
 		messages, _ = s.ChannelMessages(m.ChannelID, count, "", "", "")
 	} else if checkTargetFlag(&flags, "-a") {
@@ -93,7 +94,7 @@ func ClearChat(s *discordgo.Session, m *discordgo.MessageCreate, botID *string) 
 				mm, _ := s.ChannelMessages(m.ChannelID, 100, mID, "", "")
 				if mm != nil {
 					messages = append(messages, mm...)
-					if len(mm) < 100 {
+					if len(mm) < 100 || t.Sub(mm[len(mm)-1].Timestamp).Hours() > 24*14 {
 						break
 					}
 					mID = mm[len(mm)-1].ID
@@ -124,7 +125,7 @@ func ClearChat(s *discordgo.Session, m *discordgo.MessageCreate, botID *string) 
 					}
 					mID = mm[len(mm)-1].ID
 					messages = append(messages, mm...)
-					if len(mm) < 100 {
+					if len(mm) < 100 || t.Sub(mm[len(mm)-1].Timestamp).Hours() > 24*14 {
 						break
 					}
 				} else {
@@ -143,10 +144,8 @@ func ClearChat(s *discordgo.Session, m *discordgo.MessageCreate, botID *string) 
 	}
 
 	mOut := make([]string, 0)
-	t := time.Now()
 	for _, v := range messages {
-		diff := t.Sub(v.Timestamp)
-		if diff.Hours() < 24*14 {
+		if t.Sub(v.Timestamp).Hours() < 24*14 {
 			mOut = append(mOut, v.ID)
 		} else {
 			break
