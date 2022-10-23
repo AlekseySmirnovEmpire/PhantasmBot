@@ -5,7 +5,15 @@ import (
 	"PhantasmBot/config"
 	"PhantasmBot/db"
 	"fmt"
+	"github.com/joho/godotenv"
+	"log"
 )
+
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Print("No .env file!")
+	}
+}
 
 func main() {
 	err := config.ReadConfig()
