@@ -3,8 +3,17 @@ package main
 import (
 	"PhantasmBot/bot"
 	"PhantasmBot/config"
+	"PhantasmBot/db"
 	"fmt"
+	"github.com/joho/godotenv"
+	"log"
 )
+
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Print("No .env file!")
+	}
+}
 
 func main() {
 	err := config.ReadConfig()
@@ -12,7 +21,10 @@ func main() {
 		fmt.Println(err.Error())
 		return
 	}
-	bot.Start()
+	if err = bot.Start(); err != nil {
+		return
+	}
+	defer db.CloseDB()
 
 	<-make(chan struct{})
 }

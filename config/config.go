@@ -1,51 +1,51 @@
 package config
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"log"
+	"os"
 )
 
 var (
 	BotPrefix string
 	Token     string
 	Admin     string
-
-	config *configStruct
 )
 
-type configStruct struct {
-	Token     string `json:"token"`
-	BotPrefix string `json:"botPrefix"`
-	Admin     string `json:"admin"`
+type failLoad struct {
+	val string
+}
+
+func (f failLoad) Error() string {
+	return fmt.Sprintf("ERROR: there is no %s in .env!", f.val)
+}
+
+func (f failLoad) Unwrap() error {
+	return f
 }
 
 // IsAdmin Проверяет является ли пользователь админом по его Id
-func (c *configStruct) IsAdmin(ID *string) bool {
-	str := *ID
-	return str == c.Admin
+func IsAdmin(ID *string) bool {
+	return Admin == *ID
 }
 
 func ReadConfig() error {
-	fmt.Println("Reading from config.json ....")
+	log.Println("Reading from config.json ....")
 
-	file, err := ioutil.ReadFile("./config.json")
-	if err != nil {
-		fmt.Println(err.Error())
-		return err
+	var exist bool
+	Token, exist = os.LookupEnv("Discord_Token")
+	if !exist {
+		return failLoad{val: "TOKEN"}
 	}
-
-	config = new(configStruct)
-
-	err = json.Unmarshal(file, config)
-	if err != nil {
-		fmt.Println(err.Error())
-		return err
+	BotPrefix, exist = os.LookupEnv("Discord_Prefix")
+	if !exist {
+		return failLoad{val: "PREFIX"}
 	}
-	Token = config.Token
-	BotPrefix = config.BotPrefix
-	Admin = config.Admin
-	fmt.Println("Success reading config.json!")
+	Admin, exist = os.LookupEnv("Discord_AdminID")
+	if !exist {
+		return failLoad{val: "ADMIN ID"}
+	}
+	log.Println("Success reading config.json!")
 
 	return nil
 }
