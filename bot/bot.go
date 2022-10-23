@@ -6,6 +6,7 @@ import (
 	"PhantasmBot/db"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"log"
 	"strings"
 )
 
@@ -20,7 +21,7 @@ func Start() error {
 
 	u, err := goBot.User("@me")
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 	}
 	BotId = u.ID
 
@@ -32,11 +33,11 @@ func Start() error {
 
 	err = goBot.Open()
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 		return err
 	}
 
-	fmt.Println("Bot is running!")
+	log.Println("Bot is running!")
 	return nil
 }
 
@@ -51,7 +52,7 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if m.Content == "" {
 			msg, err := s.ChannelMessages(m.ChannelID, 1, "", "", m.ID)
 			if err != nil {
-				fmt.Errorf("unable to get messages: %s", err)
+				log.Printf("unable to get messages: %s", err)
 				return
 			}
 			m.Content = msg[0].Content

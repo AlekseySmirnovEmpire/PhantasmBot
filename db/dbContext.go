@@ -1,69 +1,49 @@
 package db
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"io/ioutil"
+	"log"
+	"os"
 )
-
-type dbConnect struct {
-	Host     string `json:"host"`
-	User     string `json:"user"`
-	Port     int    `json:"port"`
-	Password string `json:"password"`
-	DbName   string `json:"dbName"`
-}
 
 const dbName string = "postgres"
 
 var (
-	con *dbConnect
-	db  *sqlx.DB
+	db *sqlx.DB
 )
 
 func CloseDB() {
-	db.Close()
+	_ = db.Close()
 }
 
 func InitDB() error {
-	if con != nil {
+	if db != nil {
 		return nil
 	}
 
-	fmt.Println("Connecting DB ....")
+	log.Println("Connecting DB ....")
 
-	file, err := ioutil.ReadFile("./dbConfig.json")
-	if err != nil {
-		fmt.Println(err.Error())
-		return err
+	conStr, exist := os.LookupEnv("DB_ConnectionString")
+	if !exist {
+		log.Println("There is no connection string in .env file!")
 	}
 
-	con = new(dbConnect)
-	err = json.Unmarshal(file, con)
-	if err != nil {
-		fmt.Println(err.Error())
-		return err
-	}
-
-	conStr := fmt.Sprintf(
-		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		con.Host, con.Port, con.User, con.Password, con.DbName)
-
+	var err error
 	db, err = sqlx.Open(dbName, conStr)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println("SQL connection not opened!")
 		return err
 	}
 
 	if err = db.Ping(); err != nil {
-		fmt.Println(err.Error())
+		log.Printf("PING DB end with error: \"%s\"", err.Error())
 		return err
 	}
 
-	fmt.Println("Connecting DB SUCCESS!")
+	log.Println("Connecting DB SUCCESS!")
 	return nil
 }
 
@@ -97,7 +77,7 @@ func Select[T comparable](sql *string) ([]T, error) {
 	return objects, nil
 }
 
-func getZero[T any]() T {
-	var result T
-	return result
-}
+//func getZero[T any]() T {
+//	var result T
+//	return result
+//}
