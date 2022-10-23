@@ -4,6 +4,7 @@ import (
 	"PhantasmBot/character"
 	"PhantasmBot/db"
 	"fmt"
+	"strconv"
 )
 
 var (
@@ -308,4 +309,20 @@ func MakeNote(playerID, text *string) string {
 		return "заметка не добавлена!"
 	}
 	return "заметка успешно добавлена!"
+}
+
+func AddNewPlayer(args *[]string, userID *string) (string, error) {
+	msg := *args
+	height, err := strconv.Atoi(msg[5])
+	if err != nil {
+		return "", err
+	}
+	query := fmt.Sprintf(`INSERT INTO player 
+    (p_name, last_name, klass, race, height, sex, p_level, current_health, current_mana)
+    VALUES ('%s', '%s', '%s', '%s', %d, '%s', %d, %d, %d)`, msg[1], msg[2], msg[4], msg[3], height, msg[6], 1, 20, 0)
+	err = db.InsertOrUpdate(&query)
+	if err != nil {
+		return "", err
+	}
+	return "персонаж создан! Обратитесь к ГМ`у для завершения его создания! ", nil
 }

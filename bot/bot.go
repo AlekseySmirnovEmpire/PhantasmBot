@@ -116,6 +116,9 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		case "пометка":
 			commands.MakeNote(s, m)
 			break
+		case "новый":
+			commands.CreateNewPlayer(s, m)
+			break
 		default:
 			if commands.IsMandiWord(&msg[0]) {
 				commands.GetRandomShitAnswer(s, m)
