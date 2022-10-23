@@ -84,3 +84,22 @@ func MakeNote(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 	_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
 }
+
+func CreateNewPlayer(s *discordgo.Session, m *discordgo.MessageCreate) {
+	var str string
+	if player.IsInGame(&m.Author.ID) {
+		str = "выйдите из персонажа, чтобы создать нового!"
+		_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
+	}
+	msg := strings.Split(m.Content, " ")
+	if len(msg[1:]) != 6 {
+		str = "неправильно введены данные!"
+		_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
+	}
+	msg = msg[1:]
+	str, err := player.AddNewPlayer(&msg, &m.Author.ID)
+	if err != nil {
+		str = "что-то пошло не так!"
+	}
+	_, _ = s.ChannelMessageSend(m.ChannelID, makeMessageWithPing(&str, &m.Author.ID))
+}
