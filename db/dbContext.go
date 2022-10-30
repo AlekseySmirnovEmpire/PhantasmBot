@@ -39,7 +39,7 @@ func InitDB() error {
 	}
 
 	if err = db.Ping(); err != nil {
-		log.Printf("PING DB end with error: \"%s\"", err.Error())
+		log.Printf("PING DB end with error: \"%s\"\n ConString: \"%s\"", err.Error(), conStr)
 		return err
 	}
 
